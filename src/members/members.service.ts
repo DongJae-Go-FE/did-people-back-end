@@ -11,6 +11,14 @@ export interface RequestUser {
   region: string | null;
 }
 
+function serializeMember(row: Record<string, unknown>) {
+  return {
+    ...row,
+    id: row.id !== undefined ? Number(row.id) : row.id,
+    age: row.age !== undefined && row.age !== null ? Number(row.age) : row.age,
+  };
+}
+
 @Injectable()
 export class MembersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -39,7 +47,7 @@ export class MembersService {
     ]);
 
     return {
-      data,
+      data: data.map((row) => serializeMember(row as unknown as Record<string, unknown>)),
       meta: {
         totalCount,
         pageIndex,
@@ -52,14 +60,14 @@ export class MembersService {
   async findOne(id: number, user: RequestUser) {
     const row = await this.prisma.member.findUnique({ where: { id: BigInt(id) } });
     if (!row) throw new NotFoundException(`ID ${id}에 해당하는 데이터가 없습니다`);
-    return row;
+    return serializeMember(row as unknown as Record<string, unknown>);
   }
 
   async create(dto: CreateMemberDto, user: RequestUser) {
     // manager는 본인 지역으로만 등록
     const region = user.role === 'manager' ? user.region : (dto.region ?? null);
 
-    return this.prisma.member.create({
+    const created = await this.prisma.member.create({
       data: {
         name: dto.name,
         age: dto.age !== undefined ? BigInt(dto.age) : undefined,
@@ -74,6 +82,7 @@ export class MembersService {
         region,
       },
     });
+    return serializeMember(created as unknown as Record<string, unknown>);
   }
 
   async update(id: number, dto: UpdateMemberDto, user: RequestUser) {
@@ -84,7 +93,7 @@ export class MembersService {
       throw new ForbiddenException('본인 지역의 데이터만 수정할 수 있습니다');
     }
 
-    return this.prisma.member.update({
+    const updated = await this.prisma.member.update({
       where: { id: BigInt(id) },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
@@ -100,6 +109,7 @@ export class MembersService {
         ...(user.role === 'admin' && dto.region !== undefined && { region: dto.region }),
       },
     });
+    return serializeMember(updated as unknown as Record<string, unknown>);
   }
 
   async remove(id: number, user: RequestUser) {
