@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Member {
+  id            BigInt    @id @default(autoincrement())
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  name          String?
+  age           BigInt?
+  nation        String?
+  parish        String?
+  cathedral     String?
+  phone         String?
+  emergencyNum  String?   @map("emergency_num")
+  profile       String?
+  qr            String?
+  chosenDiocese String?   @map("chosen_diocese")
+  region        String?
+
+  @@map("members")
+}
+
+model LoginData {
+  id                    BigInt    @id @default(autoincrement())
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  idEmail               String?
+  password              String?
+  role                  String?   @default("manager")
+  region                String?
+  accessToken           String?
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime? @db.Timestamptz()
+
+  @@map("loginData")
+}
