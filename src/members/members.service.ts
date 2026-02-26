@@ -11,7 +11,7 @@ export interface RequestUser {
   region: string | null;
 }
 
-function serializeMember(row: Record<string, unknown>) {
+function serializeMember(row: Record<string, unknown>): Record<string, unknown> {
   return {
     ...row,
     id: row.id !== undefined ? Number(row.id) : row.id,
