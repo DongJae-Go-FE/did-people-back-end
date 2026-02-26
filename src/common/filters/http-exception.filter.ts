@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -36,10 +36,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.logger.error(exception.message, exception.stack);
     }
 
-    response.status(status).json({
+    (response as any).status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
-      path: request.url,
+      path: (request as any).url,
       message,
     });
   }
