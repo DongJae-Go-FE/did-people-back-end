@@ -1,12 +1,14 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { AppModule } from '../src/app.module';
+
+let app: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: true,
-  });
+  if (app) return app;
+
+  app = await NestFactory.create(AppModule, { bodyParser: true });
 
   const httpAdapter = app.getHttpAdapter();
   const expressInstance = httpAdapter.getInstance();
@@ -15,9 +17,8 @@ async function bootstrap() {
   );
 
   const allowAll = process.env.CORS_ALLOW_ALL === 'true';
-  const allowedOrigins = (
-    process.env.ALLOWED_ORIGINS ?? 'http://localhost:3001'
-  ).split(',').map((o) => o.trim());
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:3001')
+    .split(',').map((o: string) => o.trim());
   app.enableCors({
     origin: allowAll ? true : allowedOrigins,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -26,14 +27,9 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
 
-  // Swagger (개발 환경에서만 활성화)
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('did-db API')
@@ -45,9 +41,11 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
   }
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port);
-  console.log(`Application running on http://localhost:${port}`);
-  console.log(`Swagger UI: http://localhost:${port}/api-docs`);
+  await app.init();
+  return app;
 }
-bootstrap();
+
+export default async function handler(req: any, res: any) {
+  const nestApp = await bootstrap();
+  nestApp.getHttpAdapter().getInstance()(req, res);
+}
