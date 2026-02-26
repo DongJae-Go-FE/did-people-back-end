@@ -42,7 +42,7 @@ export class MembersService {
     if (chosenDiocese) where.chosenDiocese = { contains: chosenDiocese, mode: 'insensitive' };
 
     const [data, totalCount] = await Promise.all([
-      this.prisma.member.findMany({ where, skip, take: pageSize, orderBy: { id: 'asc' } }),
+      this.prisma.member.findMany({ where, skip, take: pageSize, orderBy: { id: 'desc' } }),
       this.prisma.member.count({ where }),
     ]);
 
