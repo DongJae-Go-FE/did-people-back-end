@@ -3,8 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+let app: Awaited<ReturnType<typeof NestFactory.create>> | null = null;
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  if (app) return app;
+
+  app = await NestFactory.create(AppModule, {
     // BigInt 직렬화: 프로토타입 오염 없이 replacer로 처리
     bodyParser: true,
   });
@@ -17,8 +21,6 @@ async function bootstrap() {
   );
 
   // CORS
-  // CORS_ALLOW_ALL=true 일 때만 전체 허용 (개발 로컬 전용)
-  // 스테이징/프로덕션은 ALLOWED_ORIGINS 목록으로 제한
   const allowAll = process.env.CORS_ALLOW_ALL === 'true';
   const allowedOrigins = (
     process.env.ALLOWED_ORIGINS ?? 'http://localhost:3001'
@@ -39,7 +41,7 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger (프로덕션에서는 비활성화)
+  // Swagger (개발 환경에서만 활성화)
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
       .setTitle('did-db API')
@@ -51,9 +53,23 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
   }
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port);
-  console.log(`Application running on http://localhost:${port}`);
-  console.log(`Swagger UI: http://localhost:${port}/api-docs`);
+  await app.init();
+  return app;
 }
-bootstrap();
+
+// Vercel serverless handler
+export default async function handler(req: any, res: any) {
+  const nestApp = await bootstrap();
+  const httpAdapter = nestApp.getHttpAdapter();
+  httpAdapter.getInstance()(req, res);
+}
+
+// 로컬 실행
+if (process.env.VERCEL !== '1') {
+  bootstrap().then(async (nestApp) => {
+    const port = process.env.PORT ?? 3000;
+    await nestApp.listen(port);
+    console.log(`Application running on http://localhost:${port}`);
+    console.log(`Swagger UI: http://localhost:${port}/api-docs`);
+  });
+}
