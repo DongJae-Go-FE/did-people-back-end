@@ -4,6 +4,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { SupabaseAuthGuard } from './common/guards/supabase-auth.guard';
+import { ChurchgoersModule } from './churchgoers/churchgoers.module';
 import { MembersModule } from './members/members.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SupabaseModule } from './supabase/supabase.module';
@@ -16,6 +17,7 @@ import { UploadModule } from './upload/upload.module';
     SupabaseModule,
     AuthModule,
     MembersModule,
+    ChurchgoersModule,
     UploadModule,
   ],
   providers: [

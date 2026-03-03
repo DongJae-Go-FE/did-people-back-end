@@ -31,9 +31,31 @@ model LoginData {
   password              String?
   role                  String?   @default("manager")
   region                String?
+  nave                  String?
   accessToken           String?
   refreshToken          String?
   refreshTokenExpiresAt DateTime? @db.Timestamptz()
 
   @@map("loginData")
+}
+
+model Churchgoer {
+  id                 BigInt    @id @default(autoincrement())
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  name               String?
+  baptismalName      String?   @map("baptismal_name")
+  phone              String?
+  address            String?
+  parish             String?
+  breakfastAvailable Boolean?  @default(false) @map("breakfast_available")
+  lunchAvailable     Boolean?  @default(false) @map("lunch_available")
+  dinnerAvailable    Boolean?  @default(false) @map("dinner_available")
+  homestayAvailable  Boolean?  @default(false) @map("homestay_available")
+  mealOnlyAvailable  Boolean?  @default(false) @map("meal_only_available")
+  homestayDates      String?   @map("homestay_dates")
+  availableRooms     BigInt?   @map("available_rooms")
+  maxCapacity        BigInt?   @map("max_capacity")
+  notes              String?
+
+  @@map("churchgoers")
 }

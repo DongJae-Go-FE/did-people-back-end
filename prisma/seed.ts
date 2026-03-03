@@ -37,6 +37,34 @@ const members = [
   { name: '김수현', age: 26, nation: '한국', parish: '흥덕본당', cathedral: '흥덕성당', phone: '010-1234-5030', emergencyNum: '010-8888-5030', chosenDiocese: '청주교구', region: 'cheongju' },
 ];
 
+const churchgoers = [
+  { name: '김성호', baptismalName: '베드로', phone: '010-2000-0001', address: '인천시 중구 답동로', parish: '답동본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: false, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-15', availableRooms: 2, maxCapacity: 4, notes: '' },
+  { name: '이미영', baptismalName: '마리아', phone: '010-2000-0002', address: '인천시 중구 답동로', parish: '답동본당', breakfastAvailable: true, lunchAvailable: false, dinnerAvailable: true, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '식사만 제공 가능' },
+  { name: '박준혁', baptismalName: '요셉', phone: '010-2000-0003', address: '인천시 중구 답동로', parish: '답동본당', breakfastAvailable: false, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-05 ~ 2026-08-20', availableRooms: 1, maxCapacity: 2, notes: '' },
+  { name: '최수진', baptismalName: '아녜스', phone: '010-2000-0004', address: '인천시 연수구', parish: '연수본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-31', availableRooms: 3, maxCapacity: 6, notes: '대가족 가능' },
+  { name: '정대원', baptismalName: '프란치스코', phone: '010-2000-0005', address: '인천시 연수구', parish: '연수본당', breakfastAvailable: true, lunchAvailable: false, dinnerAvailable: false, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '아침만 가능' },
+  { name: '강은지', baptismalName: '엘리사벳', phone: '010-2000-0006', address: '인천시 남동구', parish: '남동본당', breakfastAvailable: false, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-10 ~ 2026-08-20', availableRooms: 2, maxCapacity: 3, notes: '' },
+  { name: '윤상철', baptismalName: '바오로', phone: '010-2000-0007', address: '인천시 남동구', parish: '남동본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-25', availableRooms: 2, maxCapacity: 5, notes: '' },
+  { name: '한소라', baptismalName: '율리아나', phone: '010-2000-0008', address: '인천시 계양구', parish: '계양본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: false, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '' },
+  { name: '임태준', baptismalName: '토마스', phone: '010-2000-0009', address: '인천시 계양구', parish: '계양본당', breakfastAvailable: false, lunchAvailable: false, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-05 ~ 2026-08-15', availableRooms: 1, maxCapacity: 2, notes: '' },
+  { name: '오현주', baptismalName: '데레사', phone: '010-2000-0010', address: '인천시 부평구', parish: '부평본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-20', availableRooms: 2, maxCapacity: 4, notes: '' },
+  { name: '서민재', baptismalName: '안드레아', phone: '010-2000-0011', address: '인천시 부평구', parish: '부평본당', breakfastAvailable: true, lunchAvailable: false, dinnerAvailable: true, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '' },
+  { name: '문예진', baptismalName: '루치아', phone: '010-2000-0012', address: '인천시 서구', parish: '송도본당', breakfastAvailable: false, lunchAvailable: true, dinnerAvailable: false, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-10 ~ 2026-08-25', availableRooms: 1, maxCapacity: 2, notes: '' },
+  { name: '황지훈', baptismalName: '야고보', phone: '010-2000-0013', address: '인천시 서구', parish: '송도본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-31', availableRooms: 3, maxCapacity: 6, notes: '넓은 집' },
+  { name: '백수연', baptismalName: '클라라', phone: '010-2000-0014', address: '인천시 미추홀구', parish: '주안본당', breakfastAvailable: true, lunchAvailable: false, dinnerAvailable: false, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '' },
+  { name: '나영수', baptismalName: '루카', phone: '010-2000-0015', address: '인천시 미추홀구', parish: '주안본당', breakfastAvailable: false, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-05 ~ 2026-08-15', availableRooms: 1, maxCapacity: 3, notes: '' },
+  { name: '조민서', baptismalName: '가브리엘', phone: '010-2000-0016', address: '인천시 미추홀구', parish: '간석본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-20', availableRooms: 2, maxCapacity: 4, notes: '' },
+  { name: '유다인', baptismalName: '소피아', phone: '010-2000-0017', address: '인천시 미추홀구', parish: '간석본당', breakfastAvailable: true, lunchAvailable: false, dinnerAvailable: true, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '' },
+  { name: '신동현', baptismalName: '미카엘', phone: '010-2000-0018', address: '인천시 중구', parish: '작전본당', breakfastAvailable: false, lunchAvailable: true, dinnerAvailable: false, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-10 ~ 2026-08-30', availableRooms: 1, maxCapacity: 2, notes: '' },
+  { name: '장하은', baptismalName: '안나', phone: '010-2000-0019', address: '인천시 중구', parish: '작전본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-25', availableRooms: 2, maxCapacity: 5, notes: '' },
+  { name: '권혁준', baptismalName: '다니엘', phone: '010-2000-0020', address: '인천시 서구', parish: '청라본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: false, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '' },
+  { name: '이서윤', baptismalName: '베로니카', phone: '010-2000-0021', address: '인천시 서구', parish: '청라본당', breakfastAvailable: false, lunchAvailable: false, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-05 ~ 2026-08-20', availableRooms: 1, maxCapacity: 2, notes: '' },
+  { name: '고재민', baptismalName: '스테파노', phone: '010-2000-0022', address: '인천시 서구', parish: '검단본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-15', availableRooms: 2, maxCapacity: 4, notes: '' },
+  { name: '표지연', baptismalName: '로사', phone: '010-2000-0023', address: '인천시 서구', parish: '검단본당', breakfastAvailable: true, lunchAvailable: false, dinnerAvailable: true, homestayAvailable: false, mealOnlyAvailable: true, homestayDates: '', availableRooms: 0, maxCapacity: 0, notes: '' },
+  { name: '마동석', baptismalName: '아우구스티노', phone: '010-2000-0024', address: '인천시 동구', parish: '화수본당', breakfastAvailable: false, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-10 ~ 2026-08-25', availableRooms: 1, maxCapacity: 3, notes: '' },
+  { name: '탁지호', baptismalName: '시몬', phone: '010-2000-0025', address: '인천시 동구', parish: '화수본당', breakfastAvailable: true, lunchAvailable: true, dinnerAvailable: true, homestayAvailable: true, mealOnlyAvailable: false, homestayDates: '2026-08-01 ~ 2026-08-31', availableRooms: 3, maxCapacity: 7, notes: '대규모 수용 가능' },
+];
+
 async function main() {
   console.log('시딩 시작...');
   for (const m of members) {
@@ -54,7 +82,29 @@ async function main() {
       },
     });
   }
-  console.log(`완료: ${members.length}개 추가됨`);
+  console.log(`멤버 완료: ${members.length}개 추가됨`);
+
+  for (const c of churchgoers) {
+    await prisma.churchgoer.create({
+      data: {
+        name: c.name,
+        baptismalName: c.baptismalName,
+        phone: c.phone,
+        address: c.address,
+        parish: c.parish,
+        breakfastAvailable: c.breakfastAvailable,
+        lunchAvailable: c.lunchAvailable,
+        dinnerAvailable: c.dinnerAvailable,
+        homestayAvailable: c.homestayAvailable,
+        mealOnlyAvailable: c.mealOnlyAvailable,
+        homestayDates: c.homestayDates || null,
+        availableRooms: c.availableRooms ? BigInt(c.availableRooms) : null,
+        maxCapacity: c.maxCapacity ? BigInt(c.maxCapacity) : null,
+        notes: c.notes || null,
+      },
+    });
+  }
+  console.log(`본당 인원 완료: ${churchgoers.length}개 추가됨`);
 }
 
 main()

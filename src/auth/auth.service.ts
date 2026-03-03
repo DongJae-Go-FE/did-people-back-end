@@ -71,6 +71,7 @@ export class AuthService {
         email: user.idEmail,
         role: user.role,
         region: user.region,
+        nave: user.nave,
       },
     };
   }

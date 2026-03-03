@@ -55,6 +55,7 @@ export class SupabaseAuthGuard implements CanActivate {
       email: user.idEmail,
       role: user.role ?? 'manager',
       region: user.region ?? null,
+      nave: user.nave ?? null,
     };
 
     return true;
