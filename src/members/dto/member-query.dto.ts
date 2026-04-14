@@ -38,8 +38,4 @@ export class MemberQueryDto {
   @IsString()
   chosenDiocese?: string;
 
-  @ApiPropertyOptional({ example: '인천', description: 'admin만 타지역 조회 가능' })
-  @IsOptional()
-  @IsString()
-  region?: string;
 }

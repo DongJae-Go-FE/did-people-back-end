@@ -27,9 +27,4 @@ export class ChurchgoerQueryDto {
   @IsOptional()
   @IsString()
   parish?: string;
-
-  @ApiPropertyOptional({ description: '홈스테이 가능 여부: true / false' })
-  @IsOptional()
-  @IsString()
-  homestayAvailable?: string;
 }

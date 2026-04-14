@@ -21,8 +21,8 @@ export class AuthService {
     return this.config.getOrThrow<string>('JWT_REFRESH_SECRET');
   }
 
-  private generateTokens(userId: string, email: string, role: string, region: string | null) {
-    const payload = { sub: userId, email, role, region };
+  private generateTokens(userId: string, email: string, role: string, region: string | null, nave: string | null) {
+    const payload = { sub: userId, email, role, region, nave };
 
     const accessToken = jwt.sign(payload, this.accessSecret, {
       expiresIn: this.config.get('JWT_ACCESS_EXPIRES_IN', '1h'),
@@ -56,6 +56,7 @@ export class AuthService {
       user.idEmail ?? '',
       user.role ?? 'manager',
       user.region,
+      user.nave,
     );
 
     await this.prisma.loginData.update({
@@ -99,6 +100,7 @@ export class AuthService {
       user.idEmail ?? '',
       user.role ?? 'manager',
       user.region,
+      user.nave,
     );
 
     await this.prisma.loginData.update({
