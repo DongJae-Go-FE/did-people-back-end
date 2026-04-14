@@ -7,19 +7,21 @@ datasource db {
 }
 
 model Member {
-  id            BigInt    @id @default(autoincrement())
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
-  name          String?
-  age           BigInt?
-  nation        String?
-  parish        String?
-  cathedral     String?
-  phone         String?
-  emergencyNum  String?   @map("emergency_num")
-  profile       String?
-  qr            String?
-  chosenDiocese String?   @map("chosen_diocese")
-  region        String?
+  id                   BigInt      @id @default(autoincrement())
+  createdAt            DateTime    @default(now()) @map("created_at") @db.Timestamptz()
+  name                 String?
+  age                  BigInt?
+  nation               String?
+  parish               String?
+  cathedral            String?
+  phone                String?
+  emergencyNum         String?     @map("emergency_num")
+  profile              String?
+  qr                   String?
+  chosenDiocese        String?     @map("chosen_diocese")
+  region               String?
+  assignedChurchgoerId BigInt?     @map("assigned_churchgoer_id")
+  assignedChurchgoer   Churchgoer? @relation(fields: [assignedChurchgoerId], references: [id])
 
   @@map("members")
 }
@@ -47,15 +49,32 @@ model Churchgoer {
   phone              String?
   address            String?
   parish             String?
+  district           String?
+  ban                String?
+  familyType         String?   @map("family_type")
+  childrenCount      BigInt?   @map("children_count")
+  familyTypeOther    String?   @map("family_type_other")
+  housingType        String?   @map("housing_type")
+  housingTypeOther   String?   @map("housing_type_other")
+  pilgrimGender      String?   @map("pilgrim_gender")
+  clergyAcceptable   Boolean?  @map("clergy_acceptable")
+  bedroomType        String?   @map("bedroom_type")
+  bedCount           BigInt?   @map("bed_count")
+  futonCount         BigInt?   @map("futon_count")
+  bathroomType       String?   @map("bathroom_type")
+  hasPet             Boolean?  @map("has_pet")
+  petType            String?   @map("pet_type")
+  petLocation        String?   @map("pet_location")
+  hasWifi            Boolean?  @map("has_wifi")
+  hasWasher          Boolean?  @map("has_washer")
+  smokingPolicy      String?   @map("smoking_policy")
+  transportationType String?   @map("transportation_type")
   breakfastAvailable Boolean?  @default(false) @map("breakfast_available")
-  lunchAvailable     Boolean?  @default(false) @map("lunch_available")
   dinnerAvailable    Boolean?  @default(false) @map("dinner_available")
-  homestayAvailable  Boolean?  @default(false) @map("homestay_available")
-  mealOnlyAvailable  Boolean?  @default(false) @map("meal_only_available")
-  homestayDates      String?   @map("homestay_dates")
   availableRooms     BigInt?   @map("available_rooms")
   maxCapacity        BigInt?   @map("max_capacity")
   notes              String?
+  assignedMembers    Member[]
 
   @@map("churchgoers")
 }

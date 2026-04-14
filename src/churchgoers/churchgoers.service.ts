@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateChurchgoerDto } from './dto/create-churchgoer.dto';
 import { ChurchgoerQueryDto } from './dto/churchgoer-query.dto';
 import { UpdateChurchgoerDto } from './dto/update-churchgoer.dto';
+import { AssignMembersDto } from './dto/assign-members.dto';
 
 export interface RequestUser {
   id: string;
@@ -24,6 +25,18 @@ function serializeChurchgoer(row: Record<string, unknown>): Record<string, unkno
       row.maxCapacity !== undefined && row.maxCapacity !== null
         ? Number(row.maxCapacity)
         : row.maxCapacity,
+    childrenCount:
+      row.childrenCount !== undefined && row.childrenCount !== null
+        ? Number(row.childrenCount)
+        : row.childrenCount,
+    bedCount:
+      row.bedCount !== undefined && row.bedCount !== null
+        ? Number(row.bedCount)
+        : row.bedCount,
+    futonCount:
+      row.futonCount !== undefined && row.futonCount !== null
+        ? Number(row.futonCount)
+        : row.futonCount,
   };
 }
 
@@ -32,7 +45,7 @@ export class ChurchgoersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: ChurchgoerQueryDto, user: RequestUser) {
-    const { pageIndex = 0, pageSize = 20, name, parish, homestayAvailable } = query;
+    const { pageIndex = 0, pageSize = 20, name, parish } = query;
     const skip = pageIndex * pageSize;
 
     const where: Record<string, unknown> = {};
@@ -45,16 +58,23 @@ export class ChurchgoersService {
     }
 
     if (name) where.name = { contains: name, mode: 'insensitive' };
-    if (homestayAvailable === 'true') where.homestayAvailable = true;
-    if (homestayAvailable === 'false') where.homestayAvailable = false;
 
     const [data, totalCount] = await Promise.all([
-      this.prisma.churchgoer.findMany({ where, skip, take: pageSize, orderBy: { id: 'desc' } }),
+      this.prisma.churchgoer.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { id: 'desc' },
+        include: { _count: { select: { assignedMembers: true } } },
+      }),
       this.prisma.churchgoer.count({ where }),
     ]);
 
     return {
-      data: data.map((row) => serializeChurchgoer(row as unknown as Record<string, unknown>)),
+      data: data.map((row) => {
+        const { _count, ...rest } = row as Record<string, unknown> & { _count: { assignedMembers: number } };
+        return { ...serializeChurchgoer(rest), assignedMemberCount: _count.assignedMembers };
+      }),
       meta: {
         totalCount,
         pageIndex,
@@ -64,10 +84,25 @@ export class ChurchgoersService {
     };
   }
 
-  async findOne(id: number, user: RequestUser) {
-    const row = await this.prisma.churchgoer.findUnique({ where: { id: BigInt(id) } });
+  async findOne(id: number, user: RequestUser): Promise<Record<string, unknown>> {
+    const row = await this.prisma.churchgoer.findUnique({
+      where: { id: BigInt(id) },
+      include: {
+        assignedMembers: {
+          select: { id: true, name: true, age: true, nation: true, parish: true, phone: true },
+        },
+      },
+    });
     if (!row) throw new NotFoundException(`ID ${id}에 해당하는 데이터가 없습니다`);
-    return serializeChurchgoer(row as unknown as Record<string, unknown>);
+    const { assignedMembers, ...rest } = row as Record<string, unknown> & { assignedMembers: Array<Record<string, unknown>> };
+    return {
+      ...serializeChurchgoer(rest),
+      assignedMembers: assignedMembers.map((m) => ({
+        ...m,
+        id: Number(m.id),
+        age: m.age !== undefined && m.age !== null ? Number(m.age) : m.age,
+      })),
+    };
   }
 
   async create(dto: CreateChurchgoerDto, user: RequestUser) {
@@ -81,12 +116,28 @@ export class ChurchgoersService {
         phone: dto.phone,
         address: dto.address,
         parish,
+        district: dto.district,
+        ban: dto.ban,
+        familyType: dto.familyType,
+        childrenCount: dto.childrenCount !== undefined ? BigInt(dto.childrenCount) : undefined,
+        familyTypeOther: dto.familyTypeOther,
+        housingType: dto.housingType,
+        housingTypeOther: dto.housingTypeOther,
+        pilgrimGender: dto.pilgrimGender,
+        clergyAcceptable: dto.clergyAcceptable,
+        bedroomType: dto.bedroomType,
+        bedCount: dto.bedCount !== undefined ? BigInt(dto.bedCount) : undefined,
+        futonCount: dto.futonCount !== undefined ? BigInt(dto.futonCount) : undefined,
+        bathroomType: dto.bathroomType,
+        hasPet: dto.hasPet,
+        petType: dto.petType,
+        petLocation: dto.petLocation,
+        hasWifi: dto.hasWifi,
+        hasWasher: dto.hasWasher,
+        smokingPolicy: dto.smokingPolicy,
+        transportationType: dto.transportationType,
         breakfastAvailable: dto.breakfastAvailable ?? false,
-        lunchAvailable: dto.lunchAvailable ?? false,
         dinnerAvailable: dto.dinnerAvailable ?? false,
-        homestayAvailable: dto.homestayAvailable ?? false,
-        mealOnlyAvailable: dto.mealOnlyAvailable ?? false,
-        homestayDates: dto.homestayDates,
         availableRooms: dto.availableRooms !== undefined ? BigInt(dto.availableRooms) : undefined,
         maxCapacity: dto.maxCapacity !== undefined ? BigInt(dto.maxCapacity) : undefined,
         notes: dto.notes,
@@ -112,12 +163,28 @@ export class ChurchgoersService {
         ...(dto.address !== undefined && { address: dto.address }),
         // admin만 parish 변경 가능
         ...(user.role === 'admin' && dto.parish !== undefined && { parish: dto.parish }),
+        ...(dto.district !== undefined && { district: dto.district }),
+        ...(dto.ban !== undefined && { ban: dto.ban }),
+        ...(dto.familyType !== undefined && { familyType: dto.familyType }),
+        ...(dto.childrenCount !== undefined && { childrenCount: BigInt(dto.childrenCount) }),
+        ...(dto.familyTypeOther !== undefined && { familyTypeOther: dto.familyTypeOther }),
+        ...(dto.housingType !== undefined && { housingType: dto.housingType }),
+        ...(dto.housingTypeOther !== undefined && { housingTypeOther: dto.housingTypeOther }),
+        ...(dto.pilgrimGender !== undefined && { pilgrimGender: dto.pilgrimGender }),
+        ...(dto.clergyAcceptable !== undefined && { clergyAcceptable: dto.clergyAcceptable }),
+        ...(dto.bedroomType !== undefined && { bedroomType: dto.bedroomType }),
+        ...(dto.bedCount !== undefined && { bedCount: BigInt(dto.bedCount) }),
+        ...(dto.futonCount !== undefined && { futonCount: BigInt(dto.futonCount) }),
+        ...(dto.bathroomType !== undefined && { bathroomType: dto.bathroomType }),
+        ...(dto.hasPet !== undefined && { hasPet: dto.hasPet }),
+        ...(dto.petType !== undefined && { petType: dto.petType }),
+        ...(dto.petLocation !== undefined && { petLocation: dto.petLocation }),
+        ...(dto.hasWifi !== undefined && { hasWifi: dto.hasWifi }),
+        ...(dto.hasWasher !== undefined && { hasWasher: dto.hasWasher }),
+        ...(dto.smokingPolicy !== undefined && { smokingPolicy: dto.smokingPolicy }),
+        ...(dto.transportationType !== undefined && { transportationType: dto.transportationType }),
         ...(dto.breakfastAvailable !== undefined && { breakfastAvailable: dto.breakfastAvailable }),
-        ...(dto.lunchAvailable !== undefined && { lunchAvailable: dto.lunchAvailable }),
         ...(dto.dinnerAvailable !== undefined && { dinnerAvailable: dto.dinnerAvailable }),
-        ...(dto.homestayAvailable !== undefined && { homestayAvailable: dto.homestayAvailable }),
-        ...(dto.mealOnlyAvailable !== undefined && { mealOnlyAvailable: dto.mealOnlyAvailable }),
-        ...(dto.homestayDates !== undefined && { homestayDates: dto.homestayDates }),
         ...(dto.availableRooms !== undefined && { availableRooms: BigInt(dto.availableRooms) }),
         ...(dto.maxCapacity !== undefined && { maxCapacity: BigInt(dto.maxCapacity) }),
         ...(dto.notes !== undefined && { notes: dto.notes }),
@@ -136,5 +203,36 @@ export class ChurchgoersService {
 
     await this.prisma.churchgoer.delete({ where: { id: BigInt(id) } });
     return { message: `ID ${id} 삭제 완료` };
+  }
+
+  async assignMembers(churchgoerId: number, dto: AssignMembersDto, user: RequestUser) {
+    await this.findOne(churchgoerId, user);
+    await this.prisma.member.updateMany({
+      where: { id: { in: dto.memberIds.map((id) => BigInt(id)) } },
+      data: { assignedChurchgoerId: BigInt(churchgoerId) },
+    });
+    return this.findOne(churchgoerId, user);
+  }
+
+  async unassignMember(churchgoerId: number, memberId: number, user: RequestUser) {
+    await this.findOne(churchgoerId, user);
+    await this.prisma.member.update({
+      where: { id: BigInt(memberId) },
+      data: { assignedChurchgoerId: null },
+    });
+    return { message: `멤버 ${memberId} 배정 해제 완료` };
+  }
+
+  async getAssignedMembers(churchgoerId: number, user: RequestUser) {
+    await this.findOne(churchgoerId, user);
+    const members = await this.prisma.member.findMany({
+      where: { assignedChurchgoerId: BigInt(churchgoerId) },
+      select: { id: true, name: true, age: true, nation: true, parish: true, phone: true },
+    });
+    return members.map((m) => ({
+      ...m,
+      id: Number(m.id),
+      age: m.age !== undefined && m.age !== null ? Number(m.age) : m.age,
+    }));
   }
 }
