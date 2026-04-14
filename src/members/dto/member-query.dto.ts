@@ -15,7 +15,7 @@ export class MemberQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(10000)
   pageSize?: number = 20;
 
   @ApiPropertyOptional({ example: '홍길동' })
