@@ -38,7 +38,7 @@ export class MembersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: MemberQueryDto, user: RequestUser) {
-    const { pageIndex = 0, pageSize = 20, name, parish, cathedral, chosenDiocese } = query;
+    const { pageIndex = 0, pageSize = 20, name, parish, cathedral, diocese, chosenDiocese } = query;
     const skip = pageIndex * pageSize;
 
     const where: Record<string, unknown> = {};
@@ -52,6 +52,7 @@ export class MembersService {
 
     if (name) where.name = { contains: name, mode: 'insensitive' };
     if (cathedral) where.cathedral = { contains: cathedral, mode: 'insensitive' };
+    if (diocese) where.diocese = { contains: diocese, mode: 'insensitive' };
     if (chosenDiocese) where.chosenDiocese = { contains: chosenDiocese, mode: 'insensitive' };
 
     const [data, totalCount] = await Promise.all([
@@ -100,6 +101,7 @@ export class MembersService {
         emergencyNum: dto.emergencyNum,
         profile: dto.profile,
         qr: dto.qr,
+        diocese: dto.diocese ?? null,
         chosenDiocese: dto.chosenDiocese,
         region: dto.region ?? null,
       },
@@ -127,6 +129,7 @@ export class MembersService {
         ...(dto.emergencyNum !== undefined && { emergencyNum: dto.emergencyNum }),
         ...(dto.profile !== undefined && { profile: dto.profile }),
         ...(dto.qr !== undefined && { qr: dto.qr }),
+        ...(dto.diocese !== undefined && { diocese: dto.diocese }),
         ...(dto.chosenDiocese !== undefined && { chosenDiocese: dto.chosenDiocese }),
         ...(dto.region !== undefined && { region: dto.region }),
       },

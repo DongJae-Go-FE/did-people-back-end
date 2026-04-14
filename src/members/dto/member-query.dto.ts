@@ -33,6 +33,11 @@ export class MemberQueryDto {
   @IsString()
   cathedral?: string;
 
+  @ApiPropertyOptional({ example: '인천교구', description: '소속 교구' })
+  @IsOptional()
+  @IsString()
+  diocese?: string;
+
   @ApiPropertyOptional({ example: '인천교구' })
   @IsOptional()
   @IsString()

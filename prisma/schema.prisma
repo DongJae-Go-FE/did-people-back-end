@@ -18,6 +18,7 @@ model Member {
   emergencyNum         String?     @map("emergency_num")
   profile              String?
   qr                   String?
+  diocese              String?
   chosenDiocese        String?     @map("chosen_diocese")
   region               String?
   assignedChurchgoerId BigInt?     @map("assigned_churchgoer_id")
