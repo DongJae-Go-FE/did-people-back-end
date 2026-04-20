@@ -51,6 +51,18 @@ export class AuthService {
       throw new UnauthorizedException('아이디 또는 비밀번호가 올바르지 않습니다');
     }
 
+    // 로그인 URL별 교구 일치 검증: /login/incheon → region='incheon'만, /login/super → region=null만
+    if (dto.requiredRegion) {
+      const expected = dto.requiredRegion === 'super' ? null : dto.requiredRegion;
+      if ((user.region ?? null) !== expected) {
+        throw new UnauthorizedException(
+          dto.requiredRegion === 'super'
+            ? '슈퍼 관리자 계정이 아닙니다'
+            : `${dto.requiredRegion === 'incheon' ? '인천' : '제주'}교구 계정이 아닙니다`,
+        );
+      }
+    }
+
     const { accessToken, refreshToken, refreshTokenExpiresAt } = this.generateTokens(
       user.id.toString(),
       user.idEmail ?? '',

@@ -43,6 +43,11 @@ export class MembersService {
 
     const where: Record<string, unknown> = {};
 
+    // region 스코핑: 본인 교구 데이터만. region이 null인 사용자(super-admin)는 전체 조회 가능
+    if (user.region) {
+      where.region = user.region;
+    }
+
     // parish 필터: manager는 본인 본당만, admin은 요청 parish 또는 전체
     if (user.role === 'manager') {
       where.parish = user.nave;
@@ -83,12 +88,18 @@ export class MembersService {
       include: { assignedChurchgoer: { select: { id: true, name: true, parish: true, address: true } } },
     });
     if (!row) throw new NotFoundException(`ID ${id}에 해당하는 데이터가 없습니다`);
+    // 본인 교구 데이터만 조회 가능 (super-admin 제외)
+    if (user.region && row.region && row.region !== user.region) {
+      throw new ForbiddenException('본인 교구의 데이터만 조회할 수 있습니다');
+    }
     return serializeMember(row as unknown as Record<string, unknown>);
   }
 
   async create(dto: CreateMemberDto, user: RequestUser) {
     // manager는 본인 본당으로만 등록
     const parish = user.role === 'manager' ? user.nave : (dto.parish ?? null);
+    // region은 사용자 교구로 강제 (super-admin만 dto값 허용)
+    const region = user.region ?? dto.region ?? null;
 
     const created = await this.prisma.member.create({
       data: {
@@ -103,7 +114,7 @@ export class MembersService {
         qr: dto.qr,
         diocese: dto.diocese ?? null,
         chosenDiocese: dto.chosenDiocese,
-        region: dto.region ?? null,
+        region,
       },
     });
     return serializeMember(created as unknown as Record<string, unknown>);

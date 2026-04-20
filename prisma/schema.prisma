@@ -49,6 +49,8 @@ model Churchgoer {
   baptismalName      String?   @map("baptismal_name")
   phone              String?
   address            String?
+  diocese            String?
+  region             String?
   parish             String?
   district           String?
   ban                String?
