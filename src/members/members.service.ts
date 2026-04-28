@@ -82,14 +82,14 @@ export class MembersService {
     };
   }
 
-  async findOne(id: number, user: RequestUser) {
+  async findOne(id: number, user?: RequestUser) {
     const row = await this.prisma.member.findUnique({
       where: { id: BigInt(id) },
       include: { assignedChurchgoer: { select: { id: true, name: true, parish: true, address: true } } },
     });
     if (!row) throw new NotFoundException(`ID ${id}에 해당하는 데이터가 없습니다`);
-    // 본인 교구 데이터만 조회 가능 (super-admin 제외)
-    if (user.region && row.region && row.region !== user.region) {
+    // 본인 교구 데이터만 조회 가능 (super-admin 및 미인증 퍼블릭 호출 제외)
+    if (user?.region && row.region && row.region !== user.region) {
       throw new ForbiddenException('본인 교구의 데이터만 조회할 수 있습니다');
     }
     return serializeMember(row as unknown as Record<string, unknown>);

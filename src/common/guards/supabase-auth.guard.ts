@@ -23,12 +23,12 @@ export class SupabaseAuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers['authorization'];
 
     if (!authHeader?.startsWith('Bearer ')) {
+      if (isPublic) return true;
       throw new UnauthorizedException('Authorization 헤더가 없습니다');
     }
 
@@ -39,6 +39,7 @@ export class SupabaseAuthGuard implements CanActivate {
     try {
       payload = jwt.verify(token, secret) as jwt.JwtPayload;
     } catch {
+      if (isPublic) return true;
       throw new UnauthorizedException('유효하지 않거나 만료된 토큰입니다');
     }
 
@@ -47,6 +48,7 @@ export class SupabaseAuthGuard implements CanActivate {
     });
 
     if (!user) {
+      if (isPublic) return true;
       throw new UnauthorizedException('토큰이 무효화되었습니다. 다시 로그인해주세요');
     }
 
