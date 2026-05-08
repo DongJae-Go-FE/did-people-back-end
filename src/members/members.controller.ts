@@ -30,6 +30,15 @@ export class MembersController {
     return this.membersService.findAll(query, user);
   }
 
+  @Get('parishes')
+  @ApiOperation({ summary: '본당 후보 목록 (등록/수정 폼용)' })
+  getParishes(
+    @Query('region') region: string | undefined,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.membersService.getParishes(region, user);
+  }
+
   @Public()
   @Get(':id')
   @ApiOperation({ summary: '단건 조회' })

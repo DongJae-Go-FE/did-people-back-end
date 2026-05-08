@@ -215,6 +215,24 @@ export class ChurchgoersService {
     return serializeChurchgoer(updated as unknown as Record<string, unknown>);
   }
 
+  // 본당 후보 목록 (form select용)
+  async getParishes(queryRegion: string | undefined, user: RequestUser): Promise<string[]> {
+    const isMaster = user.role === 'master' || user.region === 'all' || user.region === null;
+    const where: Record<string, unknown> = { parish: { not: null } };
+    if (isMaster) {
+      if (queryRegion && queryRegion !== 'all') where.region = queryRegion;
+    } else if (user.region) {
+      where.region = user.region;
+    }
+    const rows = await this.prisma.churchgoer.findMany({
+      where,
+      select: { parish: true },
+      distinct: ['parish'],
+      orderBy: { parish: 'asc' },
+    });
+    return rows.map((r) => r.parish).filter((p): p is string => !!p);
+  }
+
   async remove(id: number, user: RequestUser) {
     const row = await this.findOne(id, user);
 

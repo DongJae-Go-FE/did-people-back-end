@@ -33,6 +33,15 @@ export class ChurchgoersController {
     return this.churchgoersService.findAll(query, user);
   }
 
+  @Get('parishes')
+  @ApiOperation({ summary: '본당 후보 목록 (등록/수정 폼용)' })
+  getParishes(
+    @Query('region') region: string | undefined,
+    @CurrentUser() user: RequestUser,
+  ) {
+    return this.churchgoersService.getParishes(region, user);
+  }
+
   @Get(':id/assignments')
   @ApiOperation({ summary: '봉사자에게 배정된 참여인원 목록' })
   getAssignedMembers(
