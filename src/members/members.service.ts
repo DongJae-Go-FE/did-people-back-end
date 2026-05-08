@@ -38,17 +38,24 @@ export class MembersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: MemberQueryDto, user: RequestUser) {
-    const { pageIndex = 0, pageSize = 20, name, parish, cathedral, diocese, chosenDiocese } = query;
+    const { pageIndex = 0, pageSize = 20, name, parish, cathedral, diocese, chosenDiocese, region: queryRegion } = query;
     const skip = pageIndex * pageSize;
 
     const where: Record<string, unknown> = {};
 
-    // region 스코핑: 본인 교구 데이터만. region이 null인 사용자(super-admin)는 전체 조회 가능
-    if (user.region) {
+    // region 스코핑
+    // - master: region이 'all'/null → 전체 조회. query.region이 있으면 해당 region 필터링
+    // - admin/manager: 본인 region 강제
+    const isMaster = user.role === 'master' || user.region === 'all' || user.region === null;
+    if (isMaster) {
+      if (queryRegion && queryRegion !== 'all') {
+        where.region = queryRegion;
+      }
+    } else if (user.region) {
       where.region = user.region;
     }
 
-    // parish 필터: manager는 본인 본당만, admin은 요청 parish 또는 전체
+    // parish 필터: manager는 본인 본당만, 그 외는 요청 parish 또는 전체
     if (user.role === 'manager') {
       where.parish = user.nave;
     } else if (parish) {
@@ -88,8 +95,9 @@ export class MembersService {
       include: { assignedChurchgoer: { select: { id: true, name: true, parish: true, address: true } } },
     });
     if (!row) throw new NotFoundException(`ID ${id}에 해당하는 데이터가 없습니다`);
-    // 본인 교구 데이터만 조회 가능 (super-admin 및 미인증 퍼블릭 호출 제외)
-    if (user?.region && row.region && row.region !== user.region) {
+    // 본인 교구 데이터만 조회 가능 (master 및 미인증 퍼블릭 호출 제외)
+    const isMaster = user?.role === 'master' || user?.region === 'all' || user?.region === null;
+    if (user && !isMaster && user.region && row.region && row.region !== user.region) {
       throw new ForbiddenException('본인 교구의 데이터만 조회할 수 있습니다');
     }
     return serializeMember(row as unknown as Record<string, unknown>);
@@ -98,8 +106,9 @@ export class MembersService {
   async create(dto: CreateMemberDto, user: RequestUser) {
     // manager는 본인 본당으로만 등록
     const parish = user.role === 'manager' ? user.nave : (dto.parish ?? null);
-    // region은 사용자 교구로 강제 (super-admin만 dto값 허용)
-    const region = user.region ?? dto.region ?? null;
+    // region: master는 dto.region 허용, 그 외는 본인 region 강제
+    const isMaster = user.role === 'master' || user.region === 'all' || user.region === null;
+    const region = isMaster ? (dto.region ?? null) : user.region;
 
     const created = await this.prisma.member.create({
       data: {

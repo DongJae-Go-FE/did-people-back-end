@@ -70,8 +70,8 @@ const loginAccounts: Array<{
   region: string | null;
   nave: string | null;
 }> = [
-  // 슈퍼 관리자 (master): 모든 교구 접근 가능, 사이드바에서 지역 전환 가능
-  { idEmail: 'master@super', password: 'master1234', role: 'master', region: null, nave: null },
+  // 슈퍼 관리자 (master): 모든 교구 접근 가능, region='all'은 전체 교구를 의미
+  { idEmail: 'master@super', password: 'master1234', role: 'master', region: 'all', nave: null },
   // 인천 관리자
   { idEmail: 'admin@incheon', password: 'admin1234', role: 'admin', region: 'incheon', nave: null },
   // 인천 본당 매니저

@@ -43,4 +43,8 @@ export class MemberQueryDto {
   @IsString()
   chosenDiocese?: string;
 
+  @ApiPropertyOptional({ example: 'incheon', description: 'master만 사용 가능: 특정 region 필터링' })
+  @IsOptional()
+  @IsString()
+  region?: string;
 }

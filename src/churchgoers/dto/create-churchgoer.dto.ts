@@ -168,4 +168,9 @@ export class CreateChurchgoerDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional({ example: 'incheon', description: 'master만 사용 가능' })
+  @IsOptional()
+  @IsString()
+  region?: string;
 }

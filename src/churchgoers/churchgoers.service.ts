@@ -45,13 +45,20 @@ export class ChurchgoersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: ChurchgoerQueryDto, user: RequestUser) {
-    const { pageIndex = 0, pageSize = 20, name, parish } = query;
+    const { pageIndex = 0, pageSize = 20, name, parish, region: queryRegion } = query;
     const skip = pageIndex * pageSize;
 
     const where: Record<string, unknown> = {};
 
-    // region 스코핑: 본인 교구 데이터만. region이 null인 사용자(super-admin)는 전체 조회 가능
-    if (user.region) {
+    // region 스코핑
+    // - master: region이 'all'/null → 전체 조회. query.region이 있으면 해당 region 필터링
+    // - admin/manager: 본인 region 강제
+    const isMaster = user.role === 'master' || user.region === 'all' || user.region === null;
+    if (isMaster) {
+      if (queryRegion && queryRegion !== 'all') {
+        where.region = queryRegion;
+      }
+    } else if (user.region) {
       where.region = user.region;
     }
 
@@ -99,9 +106,10 @@ export class ChurchgoersService {
       },
     });
     if (!row) throw new NotFoundException(`ID ${id}에 해당하는 데이터가 없습니다`);
-    // 본인 교구 데이터만 조회 가능 (super-admin 제외)
+    // 본인 교구 데이터만 조회 가능 (master 제외)
+    const isMaster = user.role === 'master' || user.region === 'all' || user.region === null;
     const rowRegion = (row as unknown as { region?: string | null }).region ?? null;
-    if (user.region && rowRegion && rowRegion !== user.region) {
+    if (!isMaster && user.region && rowRegion && rowRegion !== user.region) {
       throw new ForbiddenException('본인 교구의 데이터만 조회할 수 있습니다');
     }
     const { assignedMembers, ...rest } = row as Record<string, unknown> & { assignedMembers: Array<Record<string, unknown>> };
@@ -118,7 +126,9 @@ export class ChurchgoersService {
   async create(dto: CreateChurchgoerDto, user: RequestUser) {
     // manager는 본인 nave(본당)으로만 등록
     const parish = user.role === 'manager' ? user.nave : (dto.parish ?? null);
-    const region = user.region ?? null;
+    // region: master는 dto.region 허용, 그 외는 본인 region 강제
+    const isMaster = user.role === 'master' || user.region === 'all' || user.region === null;
+    const region = isMaster ? (dto.region ?? null) : user.region;
 
     const created = await this.prisma.churchgoer.create({
       data: {
