@@ -51,15 +51,23 @@ export class AuthService {
       throw new UnauthorizedException('아이디 또는 비밀번호가 올바르지 않습니다');
     }
 
-    // 로그인 URL별 교구 일치 검증: /login/incheon → region='incheon'만, /login/super → region=null만
+    // 로그인 URL별 권한/교구 검증
+    // - /login/super: role='master'만 허용
+    // - /login/{region}: role='master'는 모든 region 허용, 그 외(admin/manager)는 region 일치 필요
     if (dto.requiredRegion) {
-      const expected = dto.requiredRegion === 'super' ? null : dto.requiredRegion;
-      if ((user.region ?? null) !== expected) {
-        throw new UnauthorizedException(
-          dto.requiredRegion === 'super'
-            ? '슈퍼 관리자 계정이 아닙니다'
-            : `${dto.requiredRegion === 'incheon' ? '인천' : '제주'}교구 계정이 아닙니다`,
-        );
+      const role = user.role ?? 'manager';
+      const region = user.region ?? null;
+
+      if (dto.requiredRegion === 'super') {
+        if (role !== 'master') {
+          throw new UnauthorizedException('슈퍼 관리자 계정이 아닙니다');
+        }
+      } else {
+        if (role !== 'master' && region !== dto.requiredRegion) {
+          throw new UnauthorizedException(
+            `${dto.requiredRegion === 'incheon' ? '인천' : '제주'}교구 계정이 아닙니다`,
+          );
+        }
       }
     }
 

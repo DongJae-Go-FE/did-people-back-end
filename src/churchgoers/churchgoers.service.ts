@@ -173,8 +173,8 @@ export class ChurchgoersService {
         ...(dto.baptismalName !== undefined && { baptismalName: dto.baptismalName }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
         ...(dto.address !== undefined && { address: dto.address }),
-        // admin만 parish 변경 가능
-        ...(user.role === 'admin' && dto.parish !== undefined && { parish: dto.parish }),
+        // master/admin만 parish 변경 가능 (manager는 본인 nave 고정)
+        ...((user.role === 'master' || user.role === 'admin') && dto.parish !== undefined && { parish: dto.parish }),
         ...(dto.district !== undefined && { district: dto.district }),
         ...(dto.ban !== undefined && { ban: dto.ban }),
         ...(dto.familyType !== undefined && { familyType: dto.familyType }),

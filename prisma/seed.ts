@@ -63,7 +63,15 @@ const churchgoers = [
   { region: 'jeju', diocese: '제주교구', name: '양미숙', baptismalName: '카타리나', phone: '010-2000-0105', address: '제주시 애월읍', parish: '한림본당', district: '3구역', ban: '1반', familyType: '부부', housingType: '펜션', breakfastAvailable: true, dinnerAvailable: true, availableRooms: 2, maxCapacity: 4, pilgrimGender: '상관없음', bedroomType: '독립된 방', bedCount: 2, futonCount: 1, bathroomType: '단독', hasWifi: true, hasWasher: true, smokingPolicy: '금연 가정', transportationType: '자가 차량', notes: '바다 전망' },
 ];
 
-const loginAccounts = [
+const loginAccounts: Array<{
+  idEmail: string;
+  password: string;
+  role: string;
+  region: string | null;
+  nave: string | null;
+}> = [
+  // 슈퍼 관리자 (master): 모든 교구 접근 가능, 사이드바에서 지역 전환 가능
+  { idEmail: 'master@super', password: 'master1234', role: 'master', region: null, nave: null },
   // 인천 관리자
   { idEmail: 'admin@incheon', password: 'admin1234', role: 'admin', region: 'incheon', nave: null },
   // 인천 본당 매니저
